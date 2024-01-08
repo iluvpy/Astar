@@ -15,7 +15,7 @@ class Grid:
         self.width = width
         self.square_width = square_width
         self.num_squares = width // square_width
-        self.line_width = int(self.square_width * 0.01)
+        self.line_width = int(self.square_width * 0.1)
         self.squares = []
         self.clear_squares()
 
