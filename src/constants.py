@@ -1,0 +1,8 @@
+
+GRAY = (100, 100, 100)
+GREEN = (50, 255, 50)
+RED = (255, 50, 50)
+
+OBSTACLE = 1
+START = 2
+END = 3
