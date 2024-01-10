@@ -9,9 +9,9 @@ START = 2
 END = 3
 
 class Grid:
-    def __init__(self, x, y, width, square_width) -> None:
-        self.x = x
-        self.y = y
+    def __init__(self, width, square_width) -> None:
+        self.x = 0
+        self.y = 0
         self.width = width
         self.square_width = square_width
         self.num_squares = width // square_width
@@ -69,8 +69,7 @@ class Grid:
         self.squares[i_y][i_x] = 0
     
     def pos_to_index(self, pos):
-        x = pos[0]
-        y = pos[1]
+        x, y = pos
         if (x > self.width or x < 0) or (y > self.width or y < 0):
             print("couldn't find pixel")
             return 
@@ -79,3 +78,6 @@ class Grid:
 
     def set_square(self, i_x, i_y, value):
         self.squares[i_y][i_x] = value
+    
+    def get_grid_width_in_squares(self):
+        return self.num_squares

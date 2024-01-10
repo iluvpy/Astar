@@ -3,6 +3,58 @@ pygame.init()
 
 from grid import Grid, START, END
 
+# # nodes = squares on grid
+# class Node:
+#     def __init__(self) -> None:
+#         self.g = 0
+#         self.h = 0
+    
+#     def get_f_value(self):
+#         return self.g + self.h
+    
+# # the squares on the grid
+# class Astar_algorithm:
+#     def __init__(self, size) -> None:
+#         # 2D list of nodes
+#         self.grid = [[Node() for _ in range(size)] for _ in range(size)]
+#         # the x, y index of the starting square
+#         self.starting_pos = []
+#         # the x, y index of the goal square
+#         self.goal_pos = [] 
+#         self.checked_squares = []
+#         self.unexplored_positions = []
+
+#     """
+#         calculates the g, h, and f values of the square in index_pos, 
+#         and also for every square around index_pos in a 1 square radius
+#     """
+#     def check_square(self, index_pos):
+#         self.checked_squares.append(index_pos)
+        
+#         for i in range(3):
+#             for j in range(3):
+#                 if (j, i) != index_pos:
+#                     self.grid[i][j].g = 
+        
+
+#     def calculate_gh(self, index_pos):
+#         x, y = index_pos
+
+
+#     def calculate_unexplored(self):
+#         for square in self.unexplored_positions:
+#             self.check_square(square)
+
+#     def set_start(self, index_starting_pos):
+#         self.starting_pos = index_starting_pos
+#         self.unexplored_positions.append(index_starting_pos)
+    
+#     def set_goal(self, index_end_pos):
+#         self.goal_pos = index_end_pos
+
+#     def update(self):
+#         pass
+
 class Astar:
     def __init__(self) -> None:
 
@@ -17,11 +69,12 @@ class Astar:
         self.screen = pygame.display.set_mode((800, 800))
         pygame.display.set_caption("Astar")
 
-        self.grid = Grid(0, 0, 800, 10)
+        self.grid = Grid(width=800, square_width=10)
         self.draw_mode = False
         self.earaser = False
         self.starting_square = []
         self.goal_square = []
+        self.astar = Astar_algorithm(self.grid.get_grid_width_in_squares())
 
     def run(self):
         while True:
@@ -33,10 +86,12 @@ class Astar:
                     if not self.starting_square:
                         self.starting_square = self.grid.pos_to_index(self.get_mouse_pos())
                         self.grid.set_square(self.starting_square[0], self.starting_square[1], START)
+                        self.astar.set_start(self.starting_square)
                     elif not self.goal_square:
 
                         self.goal_square = self.grid.pos_to_index(self.get_mouse_pos())
                         self.grid.set_square(self.goal_square[0], self.goal_square[1], END)
+                        self.astar.set_goal(self.goal_square)
 
                     else:
                         self.draw_mode = True
