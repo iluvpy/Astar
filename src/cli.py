@@ -1,5 +1,5 @@
 from random import randint
-
+from pprint import pprint
 
 # handles the current path and new best paths of the search algorithm
 class Path:
@@ -24,16 +24,16 @@ class Node:
 def print_grid(grid, width):
     for node_list in grid:
         for node in node_list:
-            sign = "#"
+            sign = " # "
             if node.explored:
                 sign = f" {node.get_f()} "
-            else:
-                if node.is_start:
-                    sign = "S"
-                if node.is_goal:
-                    sign = "G"
+            if node.is_start:
+                sign = " S "
+            if node.is_goal:
+                sign = " G "
             print(sign, end="")
         print() # endline
+    
 
 
 """
@@ -75,23 +75,23 @@ def main():
         print_grid(grid, width)
 
         # find the index of lowest f cost nodes 
-        f_values_unexplored = [grid[i][j].get_f() for j, i in unexplored]
+        f_values_unexplored = [grid[i][j].get_f() for i, j in unexplored]
         min_f_cost = min(f_values_unexplored)
-        lowest_f_cost = []
-        for f_cost, i in enumerate(f_values_unexplored):
+        lowest_f_cost = [] 
+        for i, f_cost in enumerate(f_values_unexplored):
             if f_cost == min_f_cost:
                 lowest_f_cost.append(i)
 
         # if there are multiple nodes with the same minimal f_cost
         # then sort them again by lowest h_cost
         # get actual nodes from indexes
-        j, i = unexplored[lowest_f_cost[0]]
+        i, j = unexplored[lowest_f_cost[0]]
         lowest_h_cost = grid[i][j].h 
         best_node = unexplored[0]
         if len(lowest_f_cost) > 1:
             for index in lowest_f_cost:
-                j, i = unexplored[lowest_f_cost[index]]
-                h_cost = grid[i][j]
+                i, j = unexplored[index]
+                h_cost = grid[i][j].h
                 if h_cost < lowest_h_cost:
                     lowest_h_cost = h_cost
                     best_node = index
@@ -103,18 +103,25 @@ def main():
         start_i, start_j = starting_index   
         for i in range(3):
             for j in range(3):
-                if (i, j) != best_node:
+                node_i = start_i + i
+                node_j = start_j + j
+                if (node_i, node_j) != best_node and node_i >= 0 and node_j >= 0 and  \
+                    node_i < len(grid) and node_j < len(grid[0]):
                     new_g_cost = 10 # horizontal or vertical g_cost
                     if (abs(i - 1) + abs(j - 1)) > 1: # diagonal g_cost
                         new_g_cost = 14
-                    node_i = start_i + i
-                    node_j = start_j + j
+
                     grid[node_i][node_j].g = new_g_cost
+                    grid[node_i][node_j].h = abs(node_i - goal[0]) + abs(node_j - goal[1])
                     grid[node_i][node_j].explored = True
                     print(f"new g cost of node x {node_j}, y {node_i}: {new_g_cost}")
                     unexplored.append([node_i, node_j])
-
+        print("pre remove from unexplore")
         unexplored.remove(best_node) 
+
+        if best_node == goal:
+            print("Found best path")
+            break
 
         input_ = input("enter for next iteration...") 
         it += 1
