@@ -3,57 +3,6 @@ pygame.init()
 
 from grid import Grid, START, END
 
-# # nodes = squares on grid
-# class Node:
-#     def __init__(self) -> None:
-#         self.g = 0
-#         self.h = 0
-    
-#     def get_f_value(self):
-#         return self.g + self.h
-    
-# # the squares on the grid
-# class Astar_algorithm:
-#     def __init__(self, size) -> None:
-#         # 2D list of nodes
-#         self.grid = [[Node() for _ in range(size)] for _ in range(size)]
-#         # the x, y index of the starting square
-#         self.starting_pos = []
-#         # the x, y index of the goal square
-#         self.goal_pos = [] 
-#         self.checked_squares = []
-#         self.unexplored_positions = []
-
-#     """
-#         calculates the g, h, and f values of the square in index_pos, 
-#         and also for every square around index_pos in a 1 square radius
-#     """
-#     def check_square(self, index_pos):
-#         self.checked_squares.append(index_pos)
-        
-#         for i in range(3):
-#             for j in range(3):
-#                 if (j, i) != index_pos:
-#                     self.grid[i][j].g = 
-        
-
-#     def calculate_gh(self, index_pos):
-#         x, y = index_pos
-
-
-#     def calculate_unexplored(self):
-#         for square in self.unexplored_positions:
-#             self.check_square(square)
-
-#     def set_start(self, index_starting_pos):
-#         self.starting_pos = index_starting_pos
-#         self.unexplored_positions.append(index_starting_pos)
-    
-#     def set_goal(self, index_end_pos):
-#         self.goal_pos = index_end_pos
-
-#     def update(self):
-#         pass
 
 class Astar:
     def __init__(self) -> None:
