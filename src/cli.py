@@ -73,38 +73,32 @@ class AstarAlgorithm:
 
         # find the index of the nodes with lowest f cost 
         f_costs = [self.grid[i][j].get_f() for i, j in self.to_search]
-        min_f_cost = f_costs[0] 
-        for i, costs in enumerate(f_costs):
-            for cost in costs:
-                if cost < min_f_cost:
-                    min_f_cost = cost
+        min_f_cost = min(f_costs)
         print(f"min f cost: {min_f_cost}")
-        f_cost_indexes = [self.to_search[0]] 
-        i = 0
-        j = 0
-        for nodes in self.grid:
-            for node in nodes:
-                if node.get_f() == min_f_cost:
-                    f_cost_indexes.append([i, j])
-                j += 1
-            i += 1
-
+        f_cost_indexes = [] 
+        for i, cost in enumerate(f_costs):
+            if cost == min_f_cost:
+                print(f"i: {i} and cost: {cost}")
+                f_cost_indexes.append(i)
+        print(f"to search: {self.to_search}")
+        print(f"f cost indexes: {f_cost_indexes}")
         # if there are multiple nodes with the same minimal f_cost
         # then sort them again by lowest h_cost
         # get actual nodes from indexes
-        i, j = f_cost_indexes[0]
+        i, j = self.to_search[f_cost_indexes[0]]
         lowest_h_cost = self.grid[i][j].h 
         best_node = self.to_search[0]
         if len(f_cost_indexes) > 1:
             for index in f_cost_indexes:
-                i, j = index
+                i, j = self.to_search[index]
                 h_cost = self.grid[i][j].h
-                if h_cost < lowest_h_cost:
+                f_cost = self.grid[i][j].get_f()
+                if h_cost < lowest_h_cost and f_cost == min_f_cost:
                     lowest_h_cost = h_cost
                     best_node = index
 
-        print(best_node)
-
+        print(f"best node: {best_node}")
+        print(f"best node f cost: {self.grid[best_node[0]][best_node[1]].get_f()}")
         # calculate all costs for the nodes around best_node (3x3)
         # i, j starting pos
         # all the nodes around best_node will be added to the 
@@ -123,22 +117,21 @@ class AstarAlgorithm:
                     if (abs(i - 1) + abs(j - 1)) > 1: # diagonal g_cost
                         new_g_cost = 14
 
-                    self.grid[i][j].g = new_g_cost
-                    self.grid[i][j].h = abs(node_i - self.goal_index[0]) + abs(node_j - self.goal_index[1])
-                    self.grid[i][j].explored = True
+                    self.grid[node_i][node_j].g = new_g_cost
+                    self.grid[node_i][node_j].h = abs(node_i - self.goal_index[0]) + abs(node_j - self.goal_index[1])
+                    self.grid[node_i][node_j].explored = True
                     print(f"new g cost of node x {node_j}, y {node_i}: {new_g_cost}")
                     self.to_search.append([node_i, node_j])
+        print(f"best node {best_node}")
         print("pre remove from unexplore")
         for i in range(len(self.to_search)):
             if self.to_search[i] == best_node:
-                self.to_search.pop(i)
                 print(f"removed best node from to_search: {self.to_search[i]}")
+                self.to_search.pop(i)
                 break
 
         return best_node
     
-    def get_fcosts(self):
-        return [[node.get_f() for node in nodes] for nodes in self.grid]
 
 def main():
     print("CLI A*:")
