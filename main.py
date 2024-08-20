@@ -47,7 +47,7 @@ class Node:
                     continue
                 if (i, j) == (self.i, self.j):
                     continue
-                
+
                 # calculate cost of neighbor
                 grid[i][j].calculate_cost(self, goal_pos)
                 priority_queue.append((i, j))
@@ -67,23 +67,25 @@ class Node:
         else: # when the change in di, dj is not the same, then the parent node is not diagonal do this node
             self.g_cost += 10
         
+        self.h_cost = abs(goal_pos[0] - self.i) + abs(goal_pos[1] - self.j)
+        
     def get_fcost(self):
         return self.g_cost + self.h_cost
 
     def __lt__(self, other: Node) -> bool:
         if self.get_fcost() == other.get_fcost():
-            return self.g_cost < other.g_cost
+            return self.h_cost < other.h_cost
         return self.get_fcost() < other.get_fcost()
 
     def __gt__(self, other: Node) -> bool:
         if self.get_fcost() == other.get_fcost():
-            return self.g_cost > other.g_cost
+            return self.h_cost > other.h_cost
         return self.get_fcost() > other.get_fcost()
 
 class Grid:
     def __init__(self, w, h) -> None:
         # default cell size is 10 pixel
-        self.cell_size = 10
+        self.cell_size = 100
         self.grid_width = w
         self.grid_height = h
 
@@ -105,7 +107,7 @@ class Grid:
         sorted_nodes = sorted(priority_queue_nodes)
         # last node will have the smallest fcost and g cost
         sorted_nodes[-1].explore_neighbours(self.nodes, priority_queue, goal_pos) 
-
+        print(f"smallest node pos: {(sorted_nodes[-1].i, sorted_nodes[-1].j)}")
     def draw(self, screen):
         # vertical lines of grid
         for i in range(self.horizontal_cells):
@@ -126,7 +128,7 @@ def main():
 
     grid = Grid(800, 600)
     start_node = (0, 0)
-    goal_node = [10, 50]
+    goal_node = [4, 5]
     priority_queue = [start_node]
     running = True
     while running:
@@ -143,11 +145,11 @@ def main():
                 if (i, j) in priority_queue:
                     pygame.draw.rect(screen, ORANGE, (i * grid.cell_size, j * grid.cell_size, grid.cell_size, grid.cell_size))
 
-        pygame.draw.rect(screen, BLUE, (start_node[0], start_node[1], grid.cell_size, grid.cell_size))
-        pygame.draw.rect(screen, RED, (goal_node[0]*10, goal_node[1]*10, grid.cell_size, grid.cell_size))
+        pygame.draw.rect(screen, BLUE, (start_node[0]* grid.cell_size, start_node[1]* grid.cell_size, grid.cell_size, grid.cell_size))
+        pygame.draw.rect(screen, RED, (goal_node[0] * grid.cell_size, goal_node[1] * grid.cell_size, grid.cell_size, grid.cell_size))
 
         pygame.display.update()
-
+        pygame.time.delay(2000)
 
 
 if __name__ == "__main__":
