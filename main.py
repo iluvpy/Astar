@@ -14,6 +14,7 @@ ORANGE = (255, 165, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255) 
 RED = (255, 0, 0)
+GREY = (80, 80, 80)
 
 class Node:
     def __init__(self, i, j, goal_pos) -> None:
@@ -32,12 +33,11 @@ class Node:
     def calculate_hcost(self, goal_pos):
         self.h_cost = int(math.sqrt(((goal_pos[0] - self.i)*10)**2 + ((goal_pos[1] - self.j) * 10)**2))
 
-    # add neighbours to priority queue, remove self from queue
-    # find neighbour with lowest f-cost
-    def explore_neighbours(self, grid: List[List[Node]], priority_queue: List[tuple], visited, goal_pos):
+
+    def get_neighbours(self, grid) -> List[Node]:
         grid_length_x = len(grid[0])
         grid_length_y = len(grid)
-
+        neighbours = []
         # checking 3x3 like so
         #  |n|n|n|
         #  |n|s|n|
@@ -53,11 +53,23 @@ class Node:
                     continue
                 if (i, j) == (self.i, self.j):
                     continue
+                neighbours.append(grid[i][j])
+        return neighbours
 
-                # calculate cost of neighbor
-                grid[i][j].calculate_cost(self, goal_pos)
-                if (i, j) not in visited and (i, j) not in priority_queue:
-                    priority_queue.append((i, j))
+
+
+    # add neighbours to priority queue, remove self from queue
+    # find neighbour with lowest f-cost
+    def explore_neighbours(self, grid: List[List[Node]], priority_queue: List[tuple], visited, goal_pos):
+        grid_length_x = len(grid[0])
+        grid_length_y = len(grid)
+        neighbours: List[Node] = self.get_neighbours(grid)
+        for neighbour in neighbours:
+            neighbour.calculate_cost(self, goal_pos)
+            ni, nj = neighbour.i, neighbour.j
+            if (ni, nj) not in visited:
+                if (ni, nj) not in priority_queue:
+                    priority_queue.append((ni, nj))
                 if (self.i, self.j) == goal_pos:
                     print("yay found goal")
                     exit()
@@ -79,6 +91,9 @@ class Node:
         
     def get_fcost(self):
         return self.g_cost + self.h_cost
+    
+    def is_in_priority(self, priority_queue):
+        return (self.i, self.j) in priority_queue
 
     def __lt__(self, other: Node) -> bool:
         if self.get_fcost() == other.get_fcost():
@@ -101,6 +116,8 @@ class Grid:
         self.number_cells_y = int(self.grid_height / self.cell_size)
         self.number_cells_x = int(self.grid_width / self.cell_size)
 
+        self.ticks = 0
+
         for i in range(self.number_cells_y):
             layer = []
             for j in range(self.number_cells_x):
@@ -110,18 +127,25 @@ class Grid:
 
 
     def update(self, priority_queue, visited, goal_pos):
-        # find best nodes in priority queue (there could be more than one)
+        # find best in priority queue (there could be more than one)
         priority_queue_nodes = [self.nodes[pos[0]][pos[1]] for pos in priority_queue]
         sorted_nodes = sorted(priority_queue_nodes)
         # last node will have the smallest fcost and g cost
         sorted_nodes[0].explore_neighbours(self.nodes, priority_queue, visited, goal_pos) 
         smallest_node = sorted_nodes[0]
  
-        print(f"smallest node pos: {(smallest_node.j, smallest_node.i)} \n\textra info; fcost:{smallest_node.get_fcost()} \n\thcost:{smallest_node.h_cost}\n\tgcost:{smallest_node.g_cost}")
+        self.ticks += 1
+        if self.ticks % 50 == 0: # remove nodes that are not needed
 
-        if len(sorted_nodes) > 1:
-            smallest_node = sorted_nodes[1]
-            print(f"second smallest node pos: {(smallest_node.j, smallest_node.i)} \n\textra info; fcost:{smallest_node.get_fcost()} \n\thcost:{smallest_node.h_cost}\n\tgcost:{smallest_node.g_cost}")
+            print("hello checking every 50 ticks")
+            priority_queue_nodes = [self.nodes[pos[0]][pos[1]] for pos in priority_queue]
+            node: Node
+            for node in priority_queue_nodes:
+                neighbours: List[Node] = node.get_neighbours(self.nodes)
+                neighbours_not_in_queue = sum([1 if not n.is_in_priority(priority_queue) else 0 for n in node.get_neighbours(self.nodes)])
+                if neighbours_not_in_queue == 2:
+                    print("removed node because no neighbours")
+                    priority_queue.remove((node.i, node.j))
 
     def draw(self, screen):
         # vertical lines of grid
@@ -141,8 +165,8 @@ def main():
     screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption("A*")
 
-    goal_node = (20, 50)
-    grid = Grid(screen_size, goal_node, cell_size=30)
+    goal_node = (0, 100)
+    grid = Grid(screen_size, goal_node, cell_size=20)
     start_node = (10, 0)
     priority_queue = [start_node]
     visited = []
@@ -156,14 +180,16 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     update_grid = True
-        
-        grid.update(priority_queue, visited, goal_node)
+        if update_grid:
+            grid.update(priority_queue, visited, goal_node)
         grid.draw(screen)
 
         for i in range(grid.number_cells_y):
             for j in range(grid.number_cells_x):
                 if (i, j) in priority_queue:
                     pygame.draw.rect(screen, ORANGE, (j * grid.cell_size, i * grid.cell_size, grid.cell_size, grid.cell_size))
+                if (i, j) in visited:
+                    pygame.draw.rect(screen, GREY, (j * grid.cell_size, i * grid.cell_size, grid.cell_size, grid.cell_size))
 
         pygame.draw.rect(screen, BLUE, (start_node[1]* grid.cell_size, start_node[0]* grid.cell_size, grid.cell_size, grid.cell_size))
         pygame.draw.rect(screen, RED, (goal_node[1] * grid.cell_size, goal_node[0] * grid.cell_size, grid.cell_size, grid.cell_size))
