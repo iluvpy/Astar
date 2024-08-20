@@ -56,7 +56,7 @@ class Node:
 
                 # calculate cost of neighbor
                 grid[i][j].calculate_cost(self, goal_pos)
-                if (i, j) not in visited:
+                if (i, j) not in visited and (i, j) not in priority_queue:
                     priority_queue.append((i, j))
                 if (self.i, self.j) == goal_pos:
                     print("yay found goal")
@@ -141,18 +141,22 @@ def main():
     screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption("A*")
 
-    goal_node = (0, 100)
-    grid = Grid(screen_size, goal_node, cell_size=10)
+    goal_node = (20, 50)
+    grid = Grid(screen_size, goal_node, cell_size=30)
     start_node = (10, 0)
     priority_queue = [start_node]
     visited = []
     running = True
     while running:
+        update_grid = False
         screen.fill(WHITE)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    update_grid = True
+        
         grid.update(priority_queue, visited, goal_node)
         grid.draw(screen)
 
@@ -165,7 +169,6 @@ def main():
         pygame.draw.rect(screen, RED, (goal_node[1] * grid.cell_size, goal_node[0] * grid.cell_size, grid.cell_size, grid.cell_size))
 
         pygame.display.update()
-
 
 if __name__ == "__main__":
     main()
