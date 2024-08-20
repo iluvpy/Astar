@@ -91,11 +91,11 @@ class Node:
         return self.get_fcost() > other.get_fcost()
 
 class Grid:
-    def __init__(self, w, h, goal_pos) -> None:
+    def __init__(self, screen_size, goal_pos, cell_size) -> None:
         # default cell size is 10 pixel
-        self.cell_size = 10
-        self.grid_width = w
-        self.grid_height = h
+        self.cell_size = cell_size
+        self.grid_width = screen_size[0]
+        self.grid_height = screen_size[1]
 
         self.nodes: List[List[Node]] = []
         self.number_cells_y = int(self.grid_height / self.cell_size)
@@ -116,8 +116,12 @@ class Grid:
         # last node will have the smallest fcost and g cost
         sorted_nodes[0].explore_neighbours(self.nodes, priority_queue, visited, goal_pos) 
         smallest_node = sorted_nodes[0]
+ 
         print(f"smallest node pos: {(smallest_node.j, smallest_node.i)} \n\textra info; fcost:{smallest_node.get_fcost()} \n\thcost:{smallest_node.h_cost}\n\tgcost:{smallest_node.g_cost}")
 
+        if len(sorted_nodes) > 1:
+            smallest_node = sorted_nodes[1]
+            print(f"second smallest node pos: {(smallest_node.j, smallest_node.i)} \n\textra info; fcost:{smallest_node.get_fcost()} \n\thcost:{smallest_node.h_cost}\n\tgcost:{smallest_node.g_cost}")
 
     def draw(self, screen):
         # vertical lines of grid
@@ -133,11 +137,12 @@ class Grid:
                              (0, i * self.cell_size, self.grid_width, 1))
 
 def main():
-    screen = pygame.display.set_mode((800, 600))
+    screen_size = (1920, 1080)
+    screen = pygame.display.set_mode(screen_size)
     pygame.display.set_caption("A*")
 
-    goal_node = (55, 5)
-    grid = Grid(800, 600, goal_node)
+    goal_node = (0, 100)
+    grid = Grid(screen_size, goal_node, cell_size=10)
     start_node = (10, 0)
     priority_queue = [start_node]
     visited = []
@@ -160,7 +165,6 @@ def main():
         pygame.draw.rect(screen, RED, (goal_node[1] * grid.cell_size, goal_node[0] * grid.cell_size, grid.cell_size, grid.cell_size))
 
         pygame.display.update()
-        pygame.time.delay(100)
 
 
 if __name__ == "__main__":
